@@ -4,16 +4,87 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
-
 const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
-
+//build an output folder
+const outputPath = path.join(OUTPUT_DIR, "index.html");
 const render = require("./lib/htmlRenderer");
 
+function renderEmployee(employeeInfo) {
+    let html = render(employeeInfo);
+    fs.mkdir("output", function (err) {
+        // if (err) throw err;
+    });
+    fs.writeFile("output/index.html", html, function (err) {
+        if (err) throw err;
+    });
+}
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
 
+function numEmployees() {
+
+    console.log("Welcome! Please enter the number of employees for each of the following roles.")
+    inquirer.prompt([
+        {
+            message: "Number of managers:",
+            name: "numManagers",
+            type: "number"
+        },
+        {
+            message: "Number of interns:",
+            name: "numInterns",
+            type: "number"
+        },
+        {
+            message: "Number of Engineers:",
+            name: "numEngineers",
+            type: "number"
+        }
+    ]).then(answers => {
+        createEmployee([], answers);
+    })
+}
+// takes 2 params. The first is an empty array. The second is the number of answers. 
+function createEmployee(employeeInfo, numEmployees) {
+
+    console.log(employeeInfo, numEmployees)
+    // if the length of the array is less than the number of managers, the create manager function is called. The create manager function fills in the data and pushes it to the empty array. It will cycle back here until the length of the array equals the number of managers. Then it will move on to the number of interns. 
+    if (employeeInfo.length < numEmployees.numManagers) {
+        createManager(employeeInfo, numEmployees);
+    } else if (employeeInfo.length < (numEmployees.numManagers + numEmployees.numOfInterns)) {
+        createIntern(employeeInfo, numEmployees);
+    } else if (employeeInfo.length < (numEmployees.numManagers + numEmployees.numOfInterns + numEmployees.numOfEngineers)) {
+        createEngineer(employeeInfo, numEmployees);
+    } else {
+        renderEmployee(employeeInfo)
+    }
+}
+
+
+function createManager(employeeInfo, numEmployees) {
+
+    inquirer.prompt([
+        {
+            message: "Please enter the Manager's name.",
+            name: "myName",
+            type: "input"
+        },
+        {
+            message: "What is this Manager's email?",
+            name: "myEmail",
+            type: "input"
+        },
+        {
+            message: "What is this Manager's office number?",
+            name: "myOfficeNumber",
+            type: "input"
+        },
+    ]).then(answers => {
+        employeeInfo.push(new Manager(answers.myName, employeeInfo.length, answers.myEmail, answers.myOfficeNumber));
+        createEmployee(employeeInfo, numEmployees);
+    });
+}
+
+numEmployees()
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
