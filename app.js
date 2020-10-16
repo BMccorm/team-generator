@@ -45,14 +45,16 @@ function numEmployees() {
 }
 // takes 2 params. The first is an empty array. The second is the number of answers. 
 function createEmployee(employeeInfo, numEmployees) {
+    const countedManagers = numEmployees.numManagers + numEmployees.numInterns
+    const countedInterns = numEmployees.numManagers + numEmployees.numInterns + numEmployees.numEngineers
 
     console.log(employeeInfo, numEmployees)
     // if the length of the array is less than the number of managers, the create manager function is called. The create manager function fills in the data and pushes it to the empty array. It will cycle back here until the length of the array equals the number of managers. Then it will move on to the number of interns. 
     if (employeeInfo.length < numEmployees.numManagers) {
         createManager(employeeInfo, numEmployees);
-    } else if (employeeInfo.length < (numEmployees.numManagers + numEmployees.numOfInterns)) {
+    } else if (employeeInfo.length < countedManagers) {
         createIntern(employeeInfo, numEmployees);
-    } else if (employeeInfo.length < (numEmployees.numManagers + numEmployees.numOfInterns + numEmployees.numOfEngineers)) {
+    } else if (employeeInfo.length < countedInterns) {
         createEngineer(employeeInfo, numEmployees);
     } else {
         renderEmployee(employeeInfo)
@@ -61,7 +63,6 @@ function createEmployee(employeeInfo, numEmployees) {
 
 
 function createManager(employeeInfo, numEmployees) {
-
     inquirer.prompt([
         {
             message: "Please enter the Manager's name.",
@@ -69,12 +70,12 @@ function createManager(employeeInfo, numEmployees) {
             type: "input"
         },
         {
-            message: "What is this Manager's email?",
+            message: "What is their email?",
             name: "myEmail",
             type: "input"
         },
         {
-            message: "What is this Manager's office number?",
+            message: "What is their office number?",
             name: "myOfficeNumber",
             type: "input"
         },
@@ -84,23 +85,53 @@ function createManager(employeeInfo, numEmployees) {
     });
 }
 
+function createIntern(employeeInfo, numEmployees) {
+    inquirer.prompt([
+        {
+            message: "Please enter the Intern's name.",
+            name: "myName",
+            type: "input"
+        },
+        {
+            message: "What is their email?",
+            name: "myEmail",
+            type: "input"
+        },
+        {
+            message: "What school do they attend?",
+            name: "mySchool",
+            type: "input"
+        },
+    ]).then(answers => {
+        employeeInfo.push(new Intern(answers.myName, employeeInfo.length, answers.myEmail, answers.mySchool));
+        createEmployee(employeeInfo, numEmployees);
+    });
+}
+
+function createEngineer(employeeInfo, numEmployees) {
+    inquirer.prompt([
+        {
+            message: "Please enter the Engineer's name.",
+            name: "myName",
+            type: "input"
+        },
+        {
+            message: "What is their email?",
+            name: "myEmail",
+            type: "input"
+        },
+        {
+            message: "What is their GitHub?",
+            name: "myGithub",
+            type: "input"
+        },
+    ]).then(answers => {
+        employeeInfo.push(new Engineer(answers.myName, employeeInfo.length, answers.myEmail, answers.myGithub));
+        createEmployee(employeeInfo, numEmployees);
+    });
+}
 numEmployees()
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+
